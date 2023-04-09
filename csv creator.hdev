@@ -12,8 +12,54 @@
 <c>*_____________________________________________________</c>
 <c></c>
 <c></c>
+<c>* If you want to keep previous data, change value to 1</c>
+<l>creat_new_file := 0</l>
 <c></c>
+<l>file_name := 'test'</l>
+<l>file_dir := './'</l>
 <c></c>
+<c>* Split columns by ','</c>
+<l>headers := ['Num01, Num02, Num03, Num04']</l>
+<c></c>
+<c>* Number of records</c>
+<l>instances_number := 10</l>
+<c></c>
+<c>***** .csv file creation</c>
+<l>file_exists (file_dir + file_name + '.csv', FileExists)</l>
+<l>if (FileExists == 0)</l>
+<l>    open_file (file_dir + file_name + '.csv', 'output', FileHandle)</l>
+<l>    fwrite_string (FileHandle, headers)</l>
+<l>    fnew_line (FileHandle)</l>
+<l>    close_file (FileHandle)    </l>
+<l>else</l>
+<l>    if (creat_new_file == 1)</l>
+<l>        open_file (file_dir + file_name + '.csv', 'output', FileHandle)</l>
+<l>        fwrite_string (FileHandle, headers)</l>
+<l>        fnew_line (FileHandle)</l>
+<l>        close_file (FileHandle)       </l>
+<l>    endif</l>
+<l>endif</l>
+<c></c>
+<c>***** Adding data to .csv file</c>
+<l>tuple_split (headers[0], ',', titles)</l>
+<l>tuple_length (titles, headers_number)</l>
+<l>for i := 1 to instances_number by 1</l>
+<c>    * Random data generation</c>
+<l>    tuple_rand (headers_number, data)</l>
+<c>    </c>
+<l>    tuple_length (data, Length)</l>
+<l>    info := ''</l>
+<l>    for j := 0 to Length - 1 by 1</l>
+<l>        info := info + data[j]</l>
+<l>        info := info + ','</l>
+<l>    endfor</l>
+<l>    open_file (file_dir + file_name + '.csv', 'append', FileHandle)</l>
+<l>    fnew_line (FileHandle)</l>
+<l>    fwrite_string (FileHandle, [info])   </l>
+<l>    close_file (FileHandle)    </l>
+<l>endfor</l>
+<c></c>
+<l>return ()</l>
 </body>
 <docu id="main">
 <parameters/>
