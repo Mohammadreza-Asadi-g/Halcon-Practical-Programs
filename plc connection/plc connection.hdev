@@ -10,6 +10,35 @@
 <c>* Author (Linkedin): Mohammadreza Asadi G. </c>
 <c>* Github: github.com/Mohammadreza-Asadi-g</c>
 <c>*_____________________________________________________</c>
+<c></c>
+<c></c>
+<l>try</l>
+<c>    * Connect to device (for Classic OPC)</c>
+<l>    OpcServerHost := 'localhost'</l>
+<l>    OpcID := 'Kepware.KEPServerEX.V6'</l>
+<l>    OpcServer := 'opcda://' + OpcServerHost + '/' + OpcID</l>
+<l>    open_io_device ('OPC_Classic', OpcServer, [], [], IODeviceHandle)</l>
+<c>    </c>
+<c>    * Read from a sample register</c>
+<l>    Register := 'PLC.1200.SampleRegister1'</l>
+<l>    open_io_channel (IODeviceHandle, Register, [], [], IOChannelHandleRegister1)</l>
+<l>    read_io_channel (IOChannelHandleRegister1, RegisterValue, _)</l>
+<l>    close_io_channel (IOChannelHandleRegister1)</l>
+<c>    </c>
+<c>    * Write on a sample register</c>
+<l>    Register := 'PLC.1200.SampleRegister2'</l>
+<l>    open_io_channel (IODeviceHandle, Register, [], [], IOChannelHandleRegister2)</l>
+<l>    ValueToWrite := 'true'</l>
+<l>    write_io_channel (IOChannelHandleRegister2, ValueToWrite, _)</l>
+<l>    close_io_channel (IOChannelHandleRegister2)</l>
+<c>    </c>
+<c>    * Disconnect PLC</c>
+<l>    close_io_device (IODeviceHandle)</l>
+<c>    </c>
+<l>catch (Exception)</l>
+<c>    * PLC Connection Failed!</c>
+<l>endtry</l>
+<c></c>
 </body>
 <docu id="main">
 <parameters/>
