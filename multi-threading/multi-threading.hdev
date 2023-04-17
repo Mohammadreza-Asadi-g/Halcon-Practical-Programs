@@ -5,17 +5,98 @@
 <body>
 <c>*_____________________________________________________</c>
 <c>*</c>
-<c>* Title: Multi-Threading</c>
+<c>* Title: Image to Matrix (Multi-Threading)</c>
 <c>* Halcon Version: 18.11</c>
 <c>* Author (Linkedin): Mohammadreza Asadi G.</c>
 <c>* Github: github.com/Mohammadreza-Asadi-g</c>
 <c>*_____________________________________________________</c>
+<c>**** Converting a sample image to 2D matrix (Multi-Thread Programming)</c>
 <c></c>
+<l>dev_get_window (WindowHandle)</l>
+<l>read_image (Image, './six.jpg')</l>
 <c></c>
+<c>* Image to Vector</c>
+<l>count_seconds (start)</l>
+<l>par_start&lt;ThreadIDvector&gt; : image_converter_vector (Image, mat)</l>
+<l>* par_join (ThreadIDvector)</l>
+<l>count_seconds (end)</l>
+<l>elapsedVecThread := (end - start) * 1000   </l>
+<l>set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>disp_message (WindowHandle, 'Elapsed Time (Vector-Thread): ' + elapsedVecThread + ' ms      ', 'window', 'top', 'left', 'turquoise', '#00000080')</l>
+<c></c>
+<c>* Image to MatrixHandle</c>
+<l>count_seconds (start)</l>
+<l>par_start&lt;ThreadIDmatrix&gt; : image_converter_matrix (Image, Mat)</l>
+<l>* par_join (ThreadIDmatrix)</l>
+<l>count_seconds (end)</l>
+<l>elapsedMatThread := end - start</l>
+<l>set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>disp_message (WindowHandle, 'Elapsed Time (MatrixHandle-Thread): ' + elapsedVecThread + ' ms', 'window', 33, 'left', 'turquoise', '#00000080')</l>
+<c></c>
+<l>par_join ([ThreadIDvector, ThreadIDmatrix])</l>
 <c></c>
 </body>
 <docu id="main">
 <parameters/>
+</docu>
+</procedure>
+<procedure name="image_converter_vector">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+</io>
+<oc>
+<par name="mat" base_type="ctrl" dimension="2"/>
+</oc>
+</interface>
+<body>
+<l>get_image_size (Image, Width, Height)</l>
+<c></c>
+<l>for i := 0 to Width-1 by 1</l>
+<l>    for j := 0 to Height-1 by 1</l>
+<l>        get_grayval (Image, i, j, Grayval)</l>
+<l>        mat.at(i).insert(j, Grayval)       </l>
+<l>    endfor</l>
+<l>endfor</l>
+<l>* D1 := mat.at(0).length()</l>
+<l>* D2 := mat.length()</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="image_converter_vector">
+<parameters>
+<parameter id="Image"/>
+<parameter id="mat"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="image_converter_matrix">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+</io>
+<oc>
+<par name="Mat" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>get_image_size (Image, Width, Height)</l>
+<c></c>
+<l>create_matrix(Width, Height, 0, Mat)</l>
+<l> for i := 0 to Width-1 by 1</l>
+<l>    for j := 0 to Height-1 by 1</l>
+<l>        get_grayval (Image, i, j, Grayval)</l>
+<l>        set_value_matrix (Mat, i, j, Grayval)</l>
+<l>    endfor</l>
+<l>endfor</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="image_converter_matrix">
+<parameters>
+<parameter id="Image"/>
+<parameter id="Mat"/>
+</parameters>
 </docu>
 </procedure>
 </hdevelop>
