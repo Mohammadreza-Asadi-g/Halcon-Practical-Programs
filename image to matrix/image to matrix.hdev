@@ -11,7 +11,10 @@
 <c>* Github: github.com/Mohammadreza-Asadi-g</c>
 <c>*_____________________________________________________</c>
 <c></c>
-<c>**** Converting a sample image to 2D matrix using vectors</c>
+<c>**** Converting a sample image to 2D matrix</c>
+<l>MatType := 'vector'</l>
+<l>* MatType := 'matrix'</l>
+<c></c>
 <l>dev_get_window (WindowHandle)</l>
 <l>read_image (Img, './six.jpg')</l>
 <l>get_image_size (Img, Width, Height)</l>
@@ -20,17 +23,30 @@
 <l>* mat := {{-1}}</l>
 <l>* mat.clear()</l>
 <c></c>
-<l>for i := 0 to Width-1 by 1</l>
-<l>    for j := 0 to Height-1 by 1</l>
-<l>        get_grayval (Img, i, j, Grayval)</l>
-<l>        mat.at(i).insert(j, Grayval)       </l>
+<l>if (MatType == 'vector')</l>
+<l>    for i := 0 to Width-1 by 1</l>
+<l>        for j := 0 to Height-1 by 1</l>
+<l>            get_grayval (Img, i, j, Grayval)</l>
+<l>            mat.at(i).insert(j, Grayval)       </l>
+<l>        endfor</l>
 <l>    endfor</l>
-<l>endfor</l>
+<l>    D1 := mat.at(0).length()</l>
+<l>    D2 := mat.length()</l>
+<l>    set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>    disp_message (WindowHandle, 'Matrix Size: ' + D1 + '×' + D2, 'window', 'top', 'left', 'turquoise', '#00000080')</l>
+<c>   </c>
+<l>elseif (MatType == 'matrix')   </l>
+<l>    create_matrix(Width, Height, 0, Mat)</l>
+<l>     for i := 0 to Width-1 by 1</l>
+<l>        for j := 0 to Height-1 by 1</l>
+<l>            get_grayval (Img, i, j, Grayval)</l>
+<l>            set_value_matrix (Mat, i, j, Grayval)</l>
+<l>        endfor</l>
+<l>    endfor</l>
+<l>    set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>    disp_message (WindowHandle, 'Matrix Size: ' + Width + '×' + Height, 'window', 'top', 'left', 'turquoise', '#00000080') </l>
+<l>endif</l>
 <c></c>
-<l>D1 := mat.at(0).length()</l>
-<l>D2 := mat.length()</l>
-<l>set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
-<l>disp_message (WindowHandle, 'Matrix Size: ' + D1 + '×' + D2, 'window', 'top', 'left', 'turquoise', '#00000080')</l>
 <c></c>
 </body>
 <docu id="main">
