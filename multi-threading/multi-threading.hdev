@@ -17,7 +17,7 @@
 <c></c>
 <c>* Image to Vector</c>
 <l>count_seconds (start)</l>
-<l>par_start&lt;ThreadIDvector&gt; : image_converter_vector (Image, mat)</l>
+<l>par_start&lt;ThreadIDvector&gt; : mrag_image_converter_vector (Image, mat)</l>
 <l>* par_join (ThreadIDvector)</l>
 <l>count_seconds (end)</l>
 <l>elapsedVecThread := (end - start) * 1000   </l>
@@ -26,7 +26,7 @@
 <c></c>
 <c>* Image to MatrixHandle</c>
 <l>count_seconds (start)</l>
-<l>par_start&lt;ThreadIDmatrix&gt; : image_converter_matrix (Image, Mat)</l>
+<l>par_start&lt;ThreadIDmatrix&gt; : mrag_image_converter_matrix (Image, Mat)</l>
 <l>* par_join (ThreadIDmatrix)</l>
 <l>count_seconds (end)</l>
 <l>elapsedMatThread := (end - start) * 1000   </l>
@@ -40,7 +40,7 @@
 <parameters/>
 </docu>
 </procedure>
-<procedure name="image_converter_vector">
+<procedure name="mrag_image_converter_vector">
 <interface>
 <io>
 <par name="Image" base_type="iconic" dimension="0"/>
@@ -63,14 +63,14 @@
 <c></c>
 <l>return ()</l>
 </body>
-<docu id="image_converter_vector">
+<docu id="mrag_image_converter_vector">
 <parameters>
 <parameter id="Image"/>
 <parameter id="mat"/>
 </parameters>
 </docu>
 </procedure>
-<procedure name="image_converter_matrix">
+<procedure name="mrag_image_converter_matrix">
 <interface>
 <io>
 <par name="Image" base_type="iconic" dimension="0"/>
@@ -92,7 +92,7 @@
 <c></c>
 <l>return ()</l>
 </body>
-<docu id="image_converter_matrix">
+<docu id="mrag_image_converter_matrix">
 <parameters>
 <parameter id="Image"/>
 <parameter id="Mat"/>
