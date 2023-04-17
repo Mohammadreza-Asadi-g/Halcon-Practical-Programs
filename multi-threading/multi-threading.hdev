@@ -29,9 +29,9 @@
 <l>par_start&lt;ThreadIDmatrix&gt; : image_converter_matrix (Image, Mat)</l>
 <l>* par_join (ThreadIDmatrix)</l>
 <l>count_seconds (end)</l>
-<l>elapsedMatThread := end - start</l>
+<l>elapsedMatThread := (end - start) * 1000   </l>
 <l>set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
-<l>disp_message (WindowHandle, 'Elapsed Time (MatrixHandle-Thread): ' + elapsedVecThread + ' ms', 'window', 33, 'left', 'turquoise', '#00000080')</l>
+<l>disp_message (WindowHandle, 'Elapsed Time (MatrixHandle-Thread): ' + elapsedMatThread + ' ms', 'window', 33, 'left', 'turquoise', '#00000080')</l>
 <c></c>
 <l>par_join ([ThreadIDvector, ThreadIDmatrix])</l>
 <c></c>
