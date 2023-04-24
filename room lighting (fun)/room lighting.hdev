@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.0.1">
+<procedure name="main">
+<interface/>
+<body>
+<c>*_____________________________________________________</c>
+<c>*</c>
+<c>* Title: Room Lighting (Funny Program)</c>
+<c>* Halcon Version: 18.11</c>
+<c>* Author (Linkedin): Mohammadreza Asadi G.</c>
+<c>* Github: github.com/Mohammadreza-Asadi-g</c>
+<c>*_____________________________________________________</c>
+<c></c>
+<c>* This program integrates some practical programs like</c>
+<c>* button, multi-threading (in Halcon-Practical-Programs repository),</c>
+<c>* template matching, and histogram equalization algorithms for</c>
+<c>* test in a funny program that you are able to control room lights</c>
+<c>* with simple keys.</c>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
