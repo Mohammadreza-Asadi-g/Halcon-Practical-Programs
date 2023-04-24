@@ -17,10 +17,645 @@
 <c>* test in a funny program that you are able to control room lights</c>
 <c>* with simple keys.</c>
 <c></c>
+<l>dev_get_window (WindowHandle)</l>
+<l>read_image (Image, './image.png')</l>
+<l>read_image (Template, './template.png')</l>
 <c></c>
+<c>* Create a template matching model for boards on the wall</c>
+<l>create_shape_model (Template, 'auto', -0.39, 0.79, 'auto', 'auto', 'use_polarity', 'auto', 'auto', ModelID)</l>
+<l>dev_display (Image)</l>
+<c></c>
+<l>light_state := 0</l>
+<l>board_state := 0</l>
+<c></c>
+<l>while (1)</l>
+<c>    </c>
+<c>    * Create buttons for controling the lights</c>
+<l>    par_start &lt;ThreadID&gt; : mrag_button (WindowHandle, Button)</l>
+<l>    par_join (ThreadID)</l>
+<c>    </c>
+<c>    * Room light ON</c>
+<l>    if (Button == 'Light ON')</l>
+<l>        light_state := 1</l>
+<l>        mrag_light_on (Image)</l>
+<l>        if (board_state == 1)</l>
+<l>            mrag_board_on (Image, ModelID, light_state)</l>
+<l>        endif</l>
+<c>    </c>
+<c>    * Boards ON</c>
+<l>    elseif (Button == 'Board ON')</l>
+<l>        board_state := 1</l>
+<l>        mrag_board_on (Image, ModelID, light_state)</l>
+<c>    </c>
+<c>    * Boards OFF</c>
+<l>    elseif (Button == 'Board OFF')</l>
+<l>        board_state := 0</l>
+<l>        dev_display (Image)</l>
+<l>        if (light_state == 1)            </l>
+<l>            mrag_light_on (Image)   </l>
+<l>        endif</l>
+<c>    </c>
+<c>    * Room light OFF</c>
+<l>    elseif (Button == 'Light OFF')</l>
+<l>        light_state := 0</l>
+<l>        if (board_state == 1)</l>
+<l>            mrag_board_on (Image, ModelID, light_state)</l>
+<l>        else</l>
+<l>            dev_display (Image)            </l>
+<l>        endif        </l>
+<c>       </c>
+<l>    endif</l>
+<c>   </c>
+<l>endwhile</l>
+<c></c>
+<c>    </c>
 </body>
 <docu id="main">
 <parameters/>
+</docu>
+</procedure>
+<procedure name="menu_gen_button">
+<interface>
+<oo>
+<par name="Rectangle" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="WindowHandle" base_type="ctrl" dimension="0"/>
+<par name="String" base_type="ctrl" dimension="0"/>
+<par name="CoordSystem" base_type="ctrl" dimension="0"/>
+<par name="Row" base_type="ctrl" dimension="0"/>
+<par name="Column" base_type="ctrl" dimension="0"/>
+<par name="TextColor" base_type="ctrl" dimension="0"/>
+<par name="ButtonColor" base_type="ctrl" dimension="0"/>
+<par name="ButtonWidth" base_type="ctrl" dimension="0"/>
+<par name="SpaceBetween" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>* This procedure displays text in a graphics window.</c>
+<c></c>
+<c>* Input parameters:</c>
+<c>* WindowHandle: The WindowHandle of the graphics window, where</c>
+<c>*    the message should be displayed</c>
+<c>* String: A tuple of strings containing the text message to be displayed</c>
+<c>* CoordSystem: If set to 'window', the text position is given</c>
+<c>*    with respect to the window coordinate system.</c>
+<c>*    If set to 'image', image coordinates are used.</c>
+<c>*    (This may be useful in zoomed images.)</c>
+<c>* Row: The row coordinate of the desired text position</c>
+<c>*    If set to -1, a default value of 12 is used.</c>
+<c>* Column: The column coordinate of the desired text position</c>
+<c>*    If set to -1, a default value of 12 is used.</c>
+<c>* Color: defines the color of the text as string.</c>
+<c>*    If set to [], '' or 'auto' the currently set color is used.</c>
+<c>*    If a tuple of strings is passed, the colors are used cyclically</c>
+<c>*    for each new textline.</c>
+<c>* ButtonColor: Must be set to a color string (e.g. 'white', '#FF00CC', etc.).</c>
+<c>*              The text is written in a box of that color.</c>
+<c></c>
+<c>* Prepare window.</c>
+<l>get_rgb (WindowHandle, Red, Green, Blue)</l>
+<l>get_part (WindowHandle, Row1Part, Column1Part, Row2Part, Column2Part)</l>
+<l>get_window_extents (WindowHandle, RowWin, ColumnWin, WidthWin, HeightWin)</l>
+<l>set_part (WindowHandle, 0, 0, HeightWin - 1, WidthWin - 1)</l>
+<c></c>
+<c>* Default settings.</c>
+<l>if (Row == -1)</l>
+<l>    Row := 12</l>
+<l>endif</l>
+<l>if (Column == -1)</l>
+<l>    Column := 12</l>
+<l>endif</l>
+<l>if (TextColor == [])</l>
+<l>    TextColor := ''</l>
+<l>endif</l>
+<c></c>
+<l>try</l>
+<l>    color_string_to_rgb (ButtonColor, RGB)</l>
+<l>catch (Exception)</l>
+<l>    Exception := 'Wrong value of control parameter ButtonColor (must be a valid color string)'</l>
+<l>    throw (Exception)</l>
+<l>endtry</l>
+<l>Fac := 0.4</l>
+<l>RGBL := RGB + int((255.0 - RGB) * Fac + 0.5)</l>
+<l>RGBD := RGB - int(RGB * Fac + 0.5)</l>
+<l>ButtonColorBorderL := '#' + sum('' + RGBL$'02x')</l>
+<l>ButtonColorBorderD := '#' + sum('' + RGBD$'02x')</l>
+<c></c>
+<l>String := split('' + String + '','\n')</l>
+<c></c>
+<c>* Estimate extentions of text depending on font size.</c>
+<l>get_font_extents (WindowHandle, MaxAscent, MaxDescent, MaxWidth, MaxHeight)</l>
+<l>if (CoordSystem == 'window')</l>
+<l>    R1 := Row</l>
+<l>    C1 := Column</l>
+<l>else</l>
+<c>    * Transform image to window coordinates.</c>
+<l>    FactorRow := 1. * HeightWin / (Row2Part - Row1Part + 1)</l>
+<l>    FactorColumn := 1. * WidthWin / (Column2Part - Column1Part + 1)</l>
+<l>    R1 := (Row - Row1Part + 0.5) * FactorRow</l>
+<l>    C1 := (Column - Column1Part + 0.5) * FactorColumn</l>
+<l>endif</l>
+<c></c>
+<c>* Display text box depending on text size.</c>
+<c></c>
+<c>* Calculate box extents.</c>
+<l>String := ' ' + String + ' '</l>
+<l>Width := []</l>
+<l>for Index := 0 to |String| - 1 by 1</l>
+<l>    get_string_extents (WindowHandle, String[Index], Ascent, Descent, W, H)</l>
+<l>    Width := [Width,ButtonWidth]</l>
+<l>endfor</l>
+<l>FrameHeight := MaxHeight * |String|</l>
+<l>FrameWidth := max([0,Width])-SpaceBetween</l>
+<l>R2 := R1 + FrameHeight</l>
+<l>C2 := C1 + FrameWidth</l>
+<c>* Display rectangles.</c>
+<l>get_system ('clip_region', ClipRegion)</l>
+<l>set_system ('clip_region', 'false')</l>
+<l>get_draw (WindowHandle, DrawMode)</l>
+<l>set_draw (WindowHandle, 'fill')</l>
+<l>BorderWidth := 2</l>
+<l>gen_region_polygon_filled (UpperLeft, [R1 - BorderWidth,R1 - BorderWidth,R1,R2,R2 + BorderWidth], [C1 - BorderWidth,C2 + BorderWidth,C2,C1,C1 - BorderWidth])</l>
+<l>gen_region_polygon_filled (LowerRight, [R2 + BorderWidth,R1 - BorderWidth,R1,R2,R2 + BorderWidth], [C2 + BorderWidth,C2 + BorderWidth,C2,C1,C1 - BorderWidth])</l>
+<c></c>
+<l>gen_rectangle1 (Rectangle, R1, C1, R2, C2)</l>
+<l>set_color (WindowHandle, ButtonColorBorderL)</l>
+<l>disp_obj (UpperLeft, WindowHandle)</l>
+<l>set_color (WindowHandle, ButtonColorBorderD)</l>
+<l>disp_obj (LowerRight, WindowHandle)</l>
+<l>set_color (WindowHandle, ButtonColor)</l>
+<l>disp_obj (Rectangle, WindowHandle)</l>
+<c></c>
+<c></c>
+<l>set_draw (WindowHandle, DrawMode)</l>
+<l>set_system ('clip_region', ClipRegion)</l>
+<c>* Write text.</c>
+<l>for Index := 0 to |String| - 1 by 1</l>
+<l>    CurrentColor := TextColor[Index % |TextColor|]</l>
+<l>    if (CurrentColor != '' and CurrentColor != 'auto')</l>
+<l>        set_color (WindowHandle, CurrentColor)</l>
+<l>    else</l>
+<l>        set_rgb (WindowHandle, Red, Green, Blue)</l>
+<l>    endif</l>
+<l>    Row := R1 + MaxHeight * Index</l>
+<l>    disp_text (WindowHandle, String[Index], 'window', Row, C1, CurrentColor, 'box', 'false')</l>
+<l>endfor</l>
+<c>* Reset changed window settings.</c>
+<l>set_rgb (WindowHandle, Red, Green, Blue)</l>
+<l>set_part (WindowHandle, Row1Part, Column1Part, Row2Part, Column2Part)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="menu_gen_button">
+<abstract lang="en_US">This procedure displays text in a graphics window WindowHandle at the position (Row,Column).
+If String is a tuple, one text line is displayed for each entry. Also, '\n' will be interpreted as a newline character, i.e. a line break is performed. Empty strings (or empty parts before or after a newline) are ignored. To write empty lines, use a whitespace character.
+
+The position of the text may be specified in window coordinates (CoordSystem = 'window') or in image coordinates (CoordSystem = 'image'), which is useful when using zoomed images.
+
+The parameter Color also accepts tuples of values. In that case, the specified colors are used cyclically for every new textline.
+
+If the parameter Box is set to 'true', the text is written within a white box, which is useful on irregular background.
+
+</abstract>
+<alternatives>
+<item>write_string</item>
+<item>disp_continue_message</item>
+</alternatives>
+<chapters>
+<item>Graphics</item>
+<item>Text</item>
+</chapters>
+<chapters lang="de_DE">
+<item>Graphik</item>
+<item>Text</item>
+</chapters>
+<chapters lang="en_US">
+<item>Graphics</item>
+<item>Text</item>
+</chapters>
+<example lang="en_US">dev_open_window (0, 0, 512, 512, 'black', WindowHandle)
+set_display_font (WindowHandle, 16, 'mono', 'true', 'false')
+disp_message (WindowHandle, ['Hello','world!'], 'window', -1, -1, ['black','blue'], 'true')
+</example>
+<keywords lang="de_DE">
+<item>Meldung anzeigen</item>
+</keywords>
+<keywords lang="en_US">
+<item>display message</item>
+</keywords>
+<library lang="de_DE">MVTec Standard Procedures</library>
+<library lang="en_US">MVTec Standard Procedures</library>
+<predecessor>
+<item>dev_open_window</item>
+<item>set_display_font</item>
+<item>dev_open_window_fit_image</item>
+<item>dev_open_window_fit_size</item>
+<item>dev_display</item>
+<item>disp_obj</item>
+<item>disp_image</item>
+</predecessor>
+<see_also>
+<item>write_string</item>
+<item>disp_continue_message</item>
+</see_also>
+<short>This procedure writes a text message.</short>
+<short lang="de_DE">This procedure writes a text message.</short>
+<short lang="en_US">This procedure writes a text message.</short>
+<successor>
+<item>disp_continue_message</item>
+<item>dev_display</item>
+<item>disp_obj</item>
+</successor>
+<parameters>
+<parameter id="ButtonColor">
+<default_type>string</default_type>
+<default_value>'gray'</default_value>
+<description lang="en_US">If set to 'true', the text is written within a white box.</description>
+<multivalue>false</multivalue>
+<sem_type>attribute.value</sem_type>
+<type_list>
+<item>string</item>
+</type_list>
+<values>
+<item>'gray'</item>
+<item>'blue'</item>
+<item>'yellow'</item>
+<item>'red'</item>
+<item>'green'</item>
+<item>'cyan'</item>
+<item>'magenta'</item>
+<item>'forest green'</item>
+<item>'lime green'</item>
+<item>'coral'</item>
+<item>'slate blue'</item>
+</values>
+</parameter>
+<parameter id="ButtonWidth"/>
+<parameter id="Column">
+<default_type>integer</default_type>
+<default_value>200</default_value>
+<description lang="en_US">The column coordinate of the desired text position. If set to -1, a default value of 12 is used.</description>
+<multivalue>false</multivalue>
+<sem_type>point.x</sem_type>
+<type_list>
+<item>integer</item>
+<item>real</item>
+</type_list>
+<values>
+<item>[10,12,20,30,40,50,60,70,80,90,100,200,300,400,500,1000]</item>
+</values>
+</parameter>
+<parameter id="CoordSystem">
+<default_type>string</default_type>
+<default_value>'window'</default_value>
+<description lang="en_US">If set to 'window', the text position is given with respect to the window coordinate system. If set to 'image', image coordinates are used (This may be useful in zoomed images).</description>
+<mixed_type>false</mixed_type>
+<multivalue>false</multivalue>
+<sem_type>attribute.value</sem_type>
+<type_list>
+<item>string</item>
+</type_list>
+<value_list>
+<item>'window'</item>
+<item>'image'</item>
+</value_list>
+</parameter>
+<parameter id="Rectangle"/>
+<parameter id="Row">
+<default_type>integer</default_type>
+<default_value>200</default_value>
+<description lang="en_US">The row coordinate of the desired text position. If set to -1, a default value of 12 is used.</description>
+<multivalue>false</multivalue>
+<sem_type>point.y</sem_type>
+<type_list>
+<item>integer</item>
+<item>real</item>
+</type_list>
+<values>
+<item>[10,12,20,30,40,50,60,70,80,90,100,200,300,400,500,1000]</item>
+</values>
+</parameter>
+<parameter id="SpaceBetween"/>
+<parameter id="String">
+<default_type>string</default_type>
+<default_value>'Text'</default_value>
+<description lang="en_US">A tuple of strings containing the text message to be displayed. Each value of the tuple will be displayed in a single line.
+</description>
+<mixed_type>optional</mixed_type>
+<multivalue>optional</multivalue>
+<sem_type>string</sem_type>
+<type_list>
+<item>integer</item>
+<item>real</item>
+<item>string</item>
+</type_list>
+</parameter>
+<parameter id="TextColor">
+<default_type>string</default_type>
+<default_value>'black'</default_value>
+<description lang="en_US">Defines the color of the text as string. If set to [], or '' the currently set color is used. If a tuple of strings is passed, the colors are used cyclically for each new textline.</description>
+<mixed_type>false</mixed_type>
+<multivalue>optional</multivalue>
+<sem_type>color</sem_type>
+<type_list>
+<item>string</item>
+</type_list>
+<values>
+<item>'white'</item>
+<item>'black'</item>
+<item>'blue'</item>
+<item>'yellow'</item>
+<item>'red'</item>
+<item>'green'</item>
+<item>'cyan'</item>
+<item>'magenta'</item>
+<item>'forest green'</item>
+<item>'lime green'</item>
+<item>'coral'</item>
+<item>'slate blue'</item>
+</values>
+</parameter>
+<parameter id="WindowHandle">
+<default_type>integer</default_type>
+<description lang="en_US">The window handle of the graphics window, where the message should be displayed.</description>
+<mixed_type>false</mixed_type>
+<multivalue>false</multivalue>
+<sem_type>window</sem_type>
+<type_list>
+<item>integer</item>
+</type_list>
+</parameter>
+</parameters>
+</docu>
+</procedure>
+<procedure name="color_string_to_rgb">
+<interface>
+<ic>
+<par name="Color" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="RGB" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<l>open_window (0, 0, 1, 1, 0, 'buffer', '', WindowHandleBuffer)</l>
+<l>set_part (WindowHandleBuffer, 0, 0, -1, -1)</l>
+<l>gen_rectangle1 (Rectangle, 0, 0, 0, 0)</l>
+<l>try</l>
+<l>    set_color (WindowHandleBuffer, Color)</l>
+<l>catch (Exception)</l>
+<l>    Exception := 'Wrong value of control parameter Color (must be a valid color string)'</l>
+<l>    throw (Exception)</l>
+<l>endtry</l>
+<l>disp_obj (Rectangle, WindowHandleBuffer)</l>
+<l>dump_window_image (Image, WindowHandleBuffer)</l>
+<l>close_window (WindowHandleBuffer)</l>
+<l>get_grayval (Image, 0, 0, RGB)</l>
+<l>RGB := RGB + [0,0,0]</l>
+<l>return ()</l>
+</body>
+<docu id="color_string_to_rgb">
+<chapters lang="de_DE">
+<item>Graphik</item>
+<item>Parameter</item>
+</chapters>
+<chapters lang="en_US">
+<item>Graphics</item>
+<item>Parameters</item>
+</chapters>
+<library lang="en_US">MVTec Standard Procedures</library>
+<parameters>
+<parameter id="Color"/>
+<parameter id="RGB"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="mrag_light_on">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+</io>
+</interface>
+<body>
+<l>equ_histo_image (Image, ImageEquHisto)</l>
+<l>gauss_filter (ImageEquHisto, ImageGauss, 7)</l>
+<l>dev_display (ImageGauss)</l>
+<l>return ()</l>
+</body>
+<docu id="mrag_light_on">
+<parameters>
+<parameter id="Image"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="mrag_board_on">
+<interface>
+<io>
+<par name="Image" base_type="iconic" dimension="0"/>
+</io>
+<ic>
+<par name="ModelID" base_type="ctrl" dimension="0"/>
+<par name="light_state" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>find_shape_models (Image, ModelID, -0.39, 0.79, 0.2, 0, 0.1, 'least_squares', 0, 0.9, Row, Column, Angle, Score, Model)</l>
+<l>get_shape_model_contours (ModelContours, ModelID, 1)</l>
+<c></c>
+<l>if (light_state == 1)</l>
+<l>    mrag_light_on (Image)</l>
+<l>elseif (light_state == 0)</l>
+<l>    dev_display (Image)</l>
+<l>endif</l>
+<c></c>
+<l>tuple_gen_const (|Row|, 1, Scale)</l>
+<l>dev_display_shape_matching_results (ModelID, 'green', Row, Column, Angle, Scale, Scale, Model)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="mrag_board_on">
+<parameters>
+<parameter id="Image"/>
+<parameter id="ModelID"/>
+<parameter id="light_state"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="menu_generate">
+<interface>
+<ic>
+<par name="MenuParams" base_type="ctrl" dimension="2"/>
+<par name="WindowHandle" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="menuIndex" base_type="ctrl" dimension="0"/>
+<par name="buttonIndex" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c></c>
+<l>menuCount := MenuParams.length()</l>
+<c></c>
+<l>allMenuButtonRegions := {}</l>
+<l>for menuIndex := 0 to menuCount -1 by 1</l>
+<l>    menu := MenuParams.at(menuIndex)</l>
+<l>    menuButtonCaptions := menu.at(0)</l>
+<l>    menuNumCols := menu.at(1)[0]</l>
+<l>    menuNumRows := menu.at(1)[1]</l>
+<l>    menuCol := menu.at(1)[2]</l>
+<l>    menuRow := menu.at(1)[3]</l>
+<l>    menuWidth := menu.at(1)[4]</l>
+<l>    menuHeight := menu.at(1)[5]</l>
+<l>    menuButtonsSpaceBetween := menu.at(1)[6]</l>
+<c>    * ****************************</c>
+<c></c>
+<c>    * Generate the menu buttons</c>
+<l>    Row0 := menuRow</l>
+<l>    Col0 := menuCol</l>
+<l>    ButtonHeight := menuHeight / menuNumRows</l>
+<l>    ButtonWidth := menuWidth / menuNumCols</l>
+<l>    if (menuNumCols*menuNumRows != |menuButtonCaptions|)</l>
+<l>        stop ()</l>
+<c>        * Wrong number of regions or texts</c>
+<l>    endif</l>
+<c></c>
+<l>    Col0 := menuCol</l>
+<l>    menuButtonIndex := 0</l>
+<l>    gen_empty_obj (buttonRectangle)</l>
+<l>    gen_empty_obj (menuButtonRegions)</l>
+<l>    for c := 0 to menuNumCols - 1 by 1</l>
+<l>        for r := 0 to menuNumRows - 1 by 1</l>
+<l>            Text := menuButtonCaptions[menuButtonIndex]</l>
+<l>            menu_gen_button (buttonRectangle, WindowHandle, Text, 'window', Row0 + r * ButtonHeight, Col0 + c * ButtonWidth, 'black', 'gray', ButtonWidth, menuButtonsSpaceBetween)</l>
+<l>            concat_obj (menuButtonRegions, buttonRectangle, menuButtonRegions)</l>
+<l>            menuButtonIndex := menuButtonIndex+1</l>
+<l>        endfor</l>
+<l>    endfor</l>
+<c>    * **********************************</c>
+<c></c>
+<l>    allMenuButtonRegions.at(menuIndex) := menuButtonRegions</l>
+<l>endfor</l>
+<c></c>
+<c>* *********************</c>
+<c></c>
+<c>* Waiting For Click On Menu Item</c>
+<l>dev_error_var (ErrorVar, 1)</l>
+<c></c>
+<l>get_part (WindowHandle, Row1Part, Column1Part, Row2Part, Column2Part)</l>
+<l>get_window_extents (WindowHandle, RowWin, ColumnWin, WidthWin, HeightWin)</l>
+<l>set_part (WindowHandle, 0, 0, HeightWin - 1, WidthWin - 1)</l>
+<c></c>
+<l>while (1)</l>
+<l>    wait_seconds (0.1)</l>
+<l>    dev_set_check ('~give_error')</l>
+<c></c>
+<l>    get_mposition (WindowHandle, MenuButtonRow, MenuButtonColumn, MenuButton)</l>
+<l>    ErrorMenu := ErrorVar</l>
+<l>    dev_update_pc ('off')</l>
+<l>    dev_set_check ('~give_error')</l>
+<l>    if (ErrorMenu == H_MSG_TRUE and MenuButton != 0)</l>
+<l>        MenuEvent := true</l>
+<l>        break</l>
+<l>    endif</l>
+<l>endwhile</l>
+<c></c>
+<c></c>
+<l>SelectedButton := ''</l>
+<l>dev_set_check ('~give_error')</l>
+<c></c>
+<l>IsInside := true</l>
+<l>for menuIndex := 0 to menuCount-1 by 1</l>
+<l>    count_obj (allMenuButtonRegions.at(menuIndex), NumberRegions)</l>
+<l>    for buttonIndexi := 1 to NumberRegions by 1</l>
+<l>        select_obj (allMenuButtonRegions.at(menuIndex), MenuRegion, buttonIndexi)</l>
+<l>        test_region_point (MenuRegion, MenuButtonRow, MenuButtonColumn, IsInside)</l>
+<l>        if (IsInside)</l>
+<l>            buttonIndex := buttonIndexi-1</l>
+<l>            break</l>
+<l>        endif</l>
+<l>    endfor</l>
+<l>    if (IsInside)</l>
+<l>        break</l>
+<l>    endif</l>
+<l>endfor</l>
+<c>* Get Clicked Button</c>
+<c></c>
+<c></c>
+<l>if (IsInside != true)</l>
+<l>    menuIndex := -1</l>
+<l>    buttonIndex := -1</l>
+<l>endif</l>
+<l>dev_set_check ('give_error')</l>
+<l>set_part (WindowHandle, Row1Part, Column1Part, Row2Part, Column2Part)</l>
+<c>* *******************</c>
+<l>dev_update_window ('on')</l>
+<c></c>
+<c></c>
+</body>
+<docu id="menu_generate">
+<parameters>
+<parameter id="MenuParams"/>
+<parameter id="WindowHandle"/>
+<parameter id="buttonIndex"/>
+<parameter id="menuIndex"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="mrag_button">
+<interface>
+<ic>
+<par name="WindowHandle" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="Button" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c></c>
+<l>get_window_extents (WindowHandle, Row, Column, Width, Height)</l>
+<c></c>
+<l>while (1)</l>
+<l>*     MessageTextTrig := 'Choose Your Button Function'</l>
+<l>    set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>*     disp_message (WindowHandle, MessageTextTrig, 'window', 'top', 'left', 'turquoise', '#00000080')</l>
+<l>    wait_seconds (0.1)</l>
+<c></c>
+<l>    Menu := {{['Light ON'],[1,1,Width-100,10,100,70,5]},               {['Light OFF'],[1,1,Width-100,40,100,70,5]},               {['Board ON'],[1,1,Width-100,70,100,70,5]},               {['Board OFF'],[1,1,Width-100,100,100,70,5]}}</l>
+<c></c>
+<c>    * nikddips format codes:</c>
+<l>    menu_generate (Menu, WindowHandle, menuIndex, buttonIndex)</l>
+<c></c>
+<l>    if (menuIndex == 0 and buttonIndex == 0)</l>
+<l>        wait_seconds (0.1)</l>
+<l>        Button := 'Light ON'</l>
+<l>        break</l>
+<l>    elseif (menuIndex == 1 and buttonIndex == 0)</l>
+<l>        wait_seconds (0.1)</l>
+<l>        Button := 'Light OFF'</l>
+<l>        break</l>
+<l>    elseif (menuIndex == 2 and buttonIndex == 0)</l>
+<l>        wait_seconds (0.1)</l>
+<l>        Button := 'Board ON'</l>
+<l>        break</l>
+<l>    elseif (menuIndex == 3 and buttonIndex == 0)</l>
+<l>        wait_seconds (0.1)</l>
+<l>        Button := 'Board OFF'</l>
+<l>        break</l>
+<l>    endif</l>
+<c></c>
+<c></c>
+<c></c>
+<l>endwhile</l>
+<c></c>
+<l>clear_window (WindowHandle)</l>
+<l>return ()</l>
+</body>
+<docu id="mrag_button">
+<parameters>
+<parameter id="Button"/>
+<parameter id="WindowHandle"/>
+</parameters>
 </docu>
 </procedure>
 </hdevelop>
