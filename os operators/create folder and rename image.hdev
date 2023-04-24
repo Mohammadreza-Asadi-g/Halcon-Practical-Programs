@@ -11,12 +11,80 @@
 <c>* Github: github.com/Mohammadreza-Asadi-g</c>
 <c>*_____________________________________________________</c>
 <c></c>
-<c>* Create Folders &amp; Copy/Rename Image</c>
+<c>*** Create Folders &amp; Copy/Rename Image</c>
 <c></c>
+<c>* Create a folder with sub-folder</c>
+<l>folder_path := './'</l>
+<l>root_folder_name := 'root'</l>
+<l>sub_folder_name := 'sub'</l>
+<l>mrag_create_folder (folder_path, root_folder_name, sub_folder_name)</l>
 <c></c>
+<c>* Rename image file in current directory</c>
+<l>new_image_name := 'six'</l>
+<l>mrag_rename_image (new_image_name)</l>
 </body>
 <docu id="main">
 <parameters/>
+</docu>
+</procedure>
+<procedure name="mrag_create_folder">
+<interface>
+<ic>
+<par name="FolderPath" base_type="ctrl" dimension="0"/>
+<par name="RootFolderName" base_type="ctrl" dimension="0"/>
+<par name="SubFolderName" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c></c>
+<c></c>
+<l>folder1 := FolderPath + '/'</l>
+<l>file_exists (folder1, FileExists)</l>
+<l>if (FileExists == 0)</l>
+<l>    make_dir (folder1)</l>
+<l>endif</l>
+<c></c>
+<l>folder2 := folder1 + RootFolderName + '/'</l>
+<l>file_exists (folder2, FileExists)</l>
+<l>if (FileExists == 0)</l>
+<l>    make_dir (folder2)</l>
+<l>endif</l>
+<c></c>
+<l>folder3 := folder2 + SubFolderName + '/'</l>
+<l>file_exists (folder3, FileExists)</l>
+<l>if (FileExists == 0)</l>
+<l>    make_dir (folder3)</l>
+<l>endif</l>
+<c></c>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="mrag_create_folder">
+<parameters>
+<parameter id="FolderPath"/>
+<parameter id="RootFolderName"/>
+<parameter id="SubFolderName"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="mrag_rename_image">
+<interface>
+<ic>
+<par name="NewName" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<l>list_image_files ('./', 'default', [], source_file)</l>
+<l>parse_filename (source_file, _, Extension, _)</l>
+<l>copy_file (source_file, './' + NewName + '.' + Extension)</l>
+<l>delete_file (source_file)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="mrag_rename_image">
+<parameters>
+<parameter id="NewName"/>
+</parameters>
 </docu>
 </procedure>
 </hdevelop>
